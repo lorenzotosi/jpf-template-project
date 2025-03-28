@@ -4,7 +4,7 @@ import pcd.ass01.monitor.SimulationMonitor;
 
 public class BoidsSimulation {
 
-	final static int N_BOIDS = 1500;
+	final static int N_BOIDS = 50;
 
 	final static double SEPARATION_WEIGHT = 1.0;
     final static double ALIGNMENT_WEIGHT = 1.0;
