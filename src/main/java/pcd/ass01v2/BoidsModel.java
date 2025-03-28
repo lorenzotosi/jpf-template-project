@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 
 public class BoidsModel {
 
-    public static final int N_THREADS = Runtime.getRuntime().availableProcessors() + 1;
+    public static final int N_THREADS = 2;//Runtime.getRuntime().availableProcessors() + 1;
     private final List<Boid> boids;
     private double separationWeight; 
     private double alignmentWeight; 
@@ -27,8 +27,8 @@ public class BoidsModel {
     private SimulationMonitor simulationMonitor;
     private boolean firstStart = true;
 
-    //private ExecutorService executor = Executors.newFixedThreadPool(N_THREADS);
-    private ExecutorService executor = Executors.newCachedThreadPool();
+    private ExecutorService executor = Executors.newFixedThreadPool(N_THREADS);
+    //private ExecutorService executor = Executors.newCachedThreadPool();
 
     public BoidsModel(int nboids,
                       double initialSeparationWeight,
@@ -104,7 +104,7 @@ public class BoidsModel {
     }
 
     public synchronized List<Boid> getBoids(){
-    	return boids;
+    	return List.copyOf(boids);
     }
 
     public SimulationMonitor getSimulationMonitor() {
@@ -177,5 +177,9 @@ public class BoidsModel {
 
     public void resetFirstStart(){
         firstStart = true;
+    }
+
+    public ExecutorService getExecutor() {
+        return this.executor;
     }
 }
