@@ -26,7 +26,7 @@ public class MultiWorker extends Thread {
     }
 
     public void run() {
-        while (true) {
+        //while (true) {
             simulationMonitor.waitIfSimulationIsStopped();
             try {
                 boids.forEach(boid -> boid.calculateVelocity(boidsModel));
@@ -36,11 +36,11 @@ public class MultiWorker extends Thread {
                 phase2Barrier.await();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                break;
+                //break;
             } catch (BrokenBarrierException e) {
                 throw new RuntimeException(e);
             }
-        }
+        //}
 
     }
 
