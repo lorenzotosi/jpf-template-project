@@ -1,5 +1,7 @@
 package pcd.ass01;
 
+import pcd.ass01.worker.MultiWorker;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -9,20 +11,20 @@ import java.util.Hashtable;
 
 public class BoidsView implements ChangeListener {
 
-    private final BoidsPanel boidsPanel;
-	private final JSlider cohesionSlider;
-    private final JSlider separationSlider;
-    private final JSlider alignmentSlider;
-	private final BoidsModel model;
-	private final int width;
-    private final int height;
+	private JFrame frame;
+	private BoidsPanel boidsPanel;
+	private JSlider cohesionSlider, separationSlider, alignmentSlider;
+	private BoidsModel model;
+	private int width, height;
 
-    public BoidsView(BoidsModel model, int width, int height) {
+	private BoidViewExtended bve;
+	
+	public BoidsView(BoidsModel model, int width, int height) {
 		this.model = model;
 		this.width = width;
 		this.height = height;
-
-        JFrame frame = new JFrame("Boids Simulation");
+		
+		frame = new JFrame("Boids Simulation");
         frame.setSize(width, height);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -45,13 +47,13 @@ public class BoidsView implements ChangeListener {
         slidersPanel.add(alignmentSlider);
         slidersPanel.add(new JLabel("Cohesion"));
         slidersPanel.add(cohesionSlider);
-
+		        
 		cp.add(BorderLayout.SOUTH, slidersPanel);
 
-        BoidViewExtended bve = new BoidViewExtended(model);
+		bve = new BoidViewExtended(model);
 
 		bve.getStop().addActionListener(x -> {
-			model.getSimulationMonitor().stopSimulation();
+			model.getSimulationMonitor().endSimulation();
 			model.resetFirstStart();
 			model.setupThreads(0);
 			this.update(0);

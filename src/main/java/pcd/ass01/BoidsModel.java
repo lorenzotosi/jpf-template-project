@@ -1,10 +1,12 @@
 package pcd.ass01;
 
+import pcd.ass01.concurrency.MyBarrier;
+import pcd.ass01.monitor.FPSMonitor;
 import pcd.ass01.monitor.SimulationMonitor;
 import pcd.ass01.worker.MultiWorker;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BoidsModel {
     
@@ -18,11 +20,10 @@ public class BoidsModel {
     private final double perceptionRadius;
     private final double avoidRadius;
     private List<MultiWorker> threads;
-    private CyclicBarrier phase1Barrier;
-    private CyclicBarrier phase2Barrier;
-    private volatile int frameCompleted = 0;
+    private MyBarrier myBarrier;
     private SimulationMonitor simulationMonitor;
     private boolean firstStart = true;
+    private FPSMonitor frameMonitor;
 
     public BoidsModel(int nboids,
                       double initialSeparationWeight,
@@ -33,7 +34,8 @@ public class BoidsModel {
                       double maxSpeed,
                       double perceptionRadius,
                       double avoidRadius,
-                      SimulationMonitor simulationMonitor) {
+                      SimulationMonitor simulationMonitor
+                      /*FPSMonitor frameMonitor*/) {
         separationWeight = initialSeparationWeight;
         alignmentWeight = initialAlignmentWeight;
         cohesionWeight = initialCohesionWeight;
@@ -43,27 +45,21 @@ public class BoidsModel {
         this.perceptionRadius = perceptionRadius;
         this.avoidRadius = avoidRadius;
         this.simulationMonitor = simulationMonitor;
-        
-    	boids = new ArrayList<>();
+        this.frameMonitor = new FPSMonitor(BoidsSimulation.N_THREADS);
+    	boids = new CopyOnWriteArrayList<>();
         threads = new ArrayList<>();
     }
 
     public void setupThreads(final int nboids) {
         boids.clear();
-        threads.clear();
         if (nboids > 0) {
+            threads.clear();
             firstStart = false;
-            int nThreads = Runtime.getRuntime().availableProcessors() + 1;
+            int nThreads = BoidsSimulation.N_THREADS;
             int nBoidsPerThread = nboids / nThreads;
             int poorBoids = nboids % nThreads;
 
-            phase1Barrier = new CyclicBarrier(nThreads);
-            phase2Barrier = new CyclicBarrier(nThreads, () -> {
-                synchronized (this) {
-                    frameCompleted++;
-                }
-            });
-
+            myBarrier = new MyBarrier(nThreads);
             int from = 0;
             int to = nBoidsPerThread - 1;
 
@@ -82,7 +78,7 @@ public class BoidsModel {
                     poorBoids--;
                 }
 
-                var thread = new MultiWorker(b, this, phase1Barrier, phase2Barrier, simulationMonitor);
+                var thread = new MultiWorker(b, this, myBarrier, simulationMonitor, frameMonitor);
                 threads.add(thread);
                 this.boids.addAll(b);
             }
@@ -90,18 +86,16 @@ public class BoidsModel {
 
     }
 
-    public synchronized int getAndResetFrameCompleted() {
-        int current = frameCompleted;
-        frameCompleted = 0;
-        return current;
-    }
-
-    public synchronized List<Boid> getBoids(){
+    public List<Boid> getBoids(){
     	return boids;
     }
 
     public SimulationMonitor getSimulationMonitor() {
         return this.simulationMonitor;
+    }
+
+    public FPSMonitor getFrameMonitor() {
+        return this.frameMonitor;
     }
 
     public List<MultiWorker> getThreads(){

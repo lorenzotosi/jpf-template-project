@@ -70,14 +70,14 @@ public class BoidsModel {
             for (int i = 0; i < N_THREADS; i++) {
                 var b = new ArrayList<Boid>();
                 for (int j = from; j <= to; j++) {
-                    P2d pos = new P2d(-width / 2 + Math.random() * width, -height / 2 + Math.random() * height);
-                    V2d vel = new V2d(Math.random() * maxSpeed / 2 - maxSpeed / 4, Math.random() * maxSpeed / 2 - maxSpeed / 4);
+                    P2d pos = new P2d(-width / 2 + 1 * width, -height / 2 + 1 * height);
+                    V2d vel = new V2d(1 * maxSpeed / 2 - maxSpeed / 4, 1 * maxSpeed / 2 - maxSpeed / 4);
                     b.add(new Boid(pos, vel));
                 }
 
                 if (poorBoids != 0) {
-                    P2d pos = new P2d(-width / 2 + Math.random() * width, -height / 2 + Math.random() * height);
-                    V2d vel = new V2d(Math.random() * maxSpeed / 2 - maxSpeed / 4, Math.random() * maxSpeed / 2 - maxSpeed / 4);
+                    P2d pos = new P2d(-width / 2 + 2 * width, -height / 2 + 2 * height);
+                    V2d vel = new V2d(2 * maxSpeed / 2 - maxSpeed / 4, 2 * maxSpeed / 2 - maxSpeed / 4);
                     b.add(new Boid(pos, vel));
                     poorBoids--;
                 }

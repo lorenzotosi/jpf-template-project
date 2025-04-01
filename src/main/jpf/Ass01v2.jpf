@@ -1,4 +1,4 @@
-target = pcd.ass01v2.JpfMain
+target = pcd.ass01v2.JpfMain2
 
 classpath=build/classes/java/main
 

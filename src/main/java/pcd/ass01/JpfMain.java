@@ -1,8 +1,7 @@
-package pcd.ass01v2;
+package pcd.ass01;
 
-import pcd.ass01v2.monitor.SimulationMonitor;
-
-import java.util.concurrent.CountDownLatch;
+import pcd.ass01.monitor.SimulationMonitor;
+import pcd.ass01.worker.MultiWorker;
 
 public class JpfMain {
     final static int N_BOIDS = 1500;
@@ -21,7 +20,7 @@ public class JpfMain {
     final static int SCREEN_HEIGHT = 800;
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         var simMonitor = new SimulationMonitor();
         var model = new BoidsModel(
                 N_BOIDS,
@@ -33,28 +32,17 @@ public class JpfMain {
                 simMonitor);
 
         model.setupThreads(2);
+        model.getSimulationMonitor().startSimulation();
+        model.getThreads().forEach(Thread::start);
+
+        model.getSimulationMonitor().stopSimulation();
 
         model.getSimulationMonitor().startSimulation();
-        CountDownLatch countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
-        try {
-            model.execute1(countDownLatch);
-            countDownLatch.await();
-        } catch (Exception e) {
-            System.out.println("Boids simulation interrupted, " + e.getMessage());
-        }
-        finally {
-            countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
-        }
-        //model.setupThreads(0);
-        try {
-            model.execute2(countDownLatch);
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            System.out.println("Boids simulation interrupted, " + e.getMessage());
-        }
-        model.getExecutor().shutdown();
-        model.getSimulationMonitor().stopSimulation();
-        //System.out.println("Boids simulation finished, " + BoidsModel.N_THREADS);
+
+
+
+        model.getSimulationMonitor().endSimulation();
+        model.getThreads().forEach(MultiWorker::interrupt);
 
     }
 }
