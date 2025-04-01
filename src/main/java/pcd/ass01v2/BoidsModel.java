@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 
 public class BoidsModel {
 
-    public static final int N_THREADS = 2;//Runtime.getRuntime().availableProcessors() + 1;
+    public static final int N_THREADS = Runtime.getRuntime().availableProcessors() + 1;
     private final List<Boid> boids;
     private double separationWeight; 
     private double alignmentWeight; 
@@ -27,7 +27,7 @@ public class BoidsModel {
     private SimulationMonitor simulationMonitor;
     private boolean firstStart = true;
 
-    private ExecutorService executor = Executors.newFixedThreadPool(N_THREADS);
+    private ExecutorService executor = Executors.newFixedThreadPool(2);
     //private ExecutorService executor = Executors.newCachedThreadPool();
 
     public BoidsModel(int nboids,
@@ -76,8 +76,8 @@ public class BoidsModel {
                 }
 
                 if (poorBoids != 0) {
-                    P2d pos = new P2d(-width / 2 + 2 * width, -height / 2 + 2 * height);
-                    V2d vel = new V2d(2 * maxSpeed / 2 - maxSpeed / 4, 2 * maxSpeed / 2 - maxSpeed / 4);
+                    P2d pos = new P2d(-width / 2 + 1 * width, -height / 2 + 1 * height);
+                    V2d vel = new V2d(1 * maxSpeed / 2 - maxSpeed / 4, 1 * maxSpeed / 2 - maxSpeed / 4);
                     b.add(new Boid(pos, vel));
                     poorBoids--;
                 }

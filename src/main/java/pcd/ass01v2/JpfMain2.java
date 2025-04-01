@@ -45,7 +45,6 @@ public class JpfMain2 {
         finally {
             countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
         }
-        //model.setupThreads(0);
         try {
             model.execute2(countDownLatch);
             countDownLatch.await();
