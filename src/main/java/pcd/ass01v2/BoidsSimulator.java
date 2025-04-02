@@ -2,6 +2,8 @@ package pcd.ass01v2;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BoidsSimulator {
 
@@ -23,18 +25,14 @@ public class BoidsSimulator {
     }
       
     public void runSimulation() {
-        notifyRunning();
         while (true) {
+            ExecutorService executor = Executors.newCachedThreadPool();
             countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
             var t0 = System.currentTimeMillis();
-            if (!model.getSimulationMonitor().isSimulationRunning()){
-                notifyStop();
-                model.getSimulationMonitor().waitIfSimulationIsStopped();
-                notifyRunning();
-            }
+            model.getSimulationMonitor().waitIfSimulationIsStopped();
 
             try {
-                model.execute1(countDownLatch);
+                model.executeCalculateTask(countDownLatch, executor);
                 countDownLatch.await();
             } catch (InterruptedException e) {
                 System.out.println("Boids simulation interrupted, " + e.getMessage());
@@ -43,13 +41,13 @@ public class BoidsSimulator {
             }
 
             try {
-                model.execute2(countDownLatch);
+                model.executeUpdateTask(countDownLatch, executor);
                 countDownLatch.await();
             } catch (InterruptedException e) {
                 System.out.println("Boids simulation interrupted, " + e.getMessage());
             }
 
-
+            executor.shutdown();
 
             if (view.isPresent()) {
                 view.get().update(framerate);
@@ -68,12 +66,4 @@ public class BoidsSimulator {
             }
             }
         }
-
-    private void notifyRunning() {
-        model.getSimulationMonitor().simulatorSafelyRunning();
-    }
-
-    private void notifyStop() {
-        model.getSimulationMonitor().simulatorSafelyStopped();
-    }
 }

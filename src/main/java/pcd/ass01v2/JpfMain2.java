@@ -3,6 +3,8 @@ package pcd.ass01v2;
 import pcd.ass01v2.monitor.SimulationMonitor;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class JpfMain2 {
     final static int N_BOIDS = 1500;
@@ -32,28 +34,29 @@ public class JpfMain2 {
                 AVOID_RADIUS,
                 simMonitor);
 
+        ExecutorService e = Executors.newFixedThreadPool(2);
         model.setupThreads(2);
 
         model.getSimulationMonitor().startSimulation();
         CountDownLatch countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
         try {
-            model.execute1(countDownLatch);
+            model.executeCalculateTask(countDownLatch, e);
             countDownLatch.await();
-        } catch (Exception e) {
-            System.out.println("Boids simulation interrupted, " + e.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Boids simulation interrupted, " + ex.getMessage());
         }
         finally {
             countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
         }
         try {
-            model.execute2(countDownLatch);
+            model.executeUpdateTask(countDownLatch, e);
             countDownLatch.await();
-        } catch (InterruptedException e) {
-            System.out.println("Boids simulation interrupted, " + e.getMessage());
+        } catch (InterruptedException ex) {
+            System.out.println("Boids simulation interrupted, " + ex.getMessage());
         }
-        model.getExecutor().shutdown();
+        e.shutdown();
         model.getSimulationMonitor().stopSimulation();
-        //System.out.println("Boids simulation finished, " + BoidsModel.N_THREADS);
+
 
     }
 }

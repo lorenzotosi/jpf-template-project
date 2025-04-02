@@ -31,17 +31,21 @@ public class JpfMain {
                 AVOID_RADIUS,
                 simMonitor);
 
-        model.setupThreads(2);
+        model.setupThreads(10);
         model.getThreads().forEach(MultiWorker::start);
         model.getSimulationMonitor().startSimulation();
 
 
-        //model.getSimulationMonitor().stopSimulation();
+        model.getSimulationMonitor().stopSimulation();
 
         //model.getSimulationMonitor().startSimulation();
 
 
+        if (!model.getSimulationMonitor().isSimulationRunning()){
+            model.getSimulationMonitor().startSimulation();
+        }
         model.stopWorkers();
+        model.getSimulationMonitor().stopSimulation();
 
 
     }
