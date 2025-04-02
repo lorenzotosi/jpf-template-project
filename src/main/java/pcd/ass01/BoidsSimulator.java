@@ -1,13 +1,11 @@
 package pcd.ass01;
 
-import pcd.ass01.worker.MultiWorker;
-
 import java.util.Optional;
 
 public class BoidsSimulator {
 
-    private static final int FRAMERATE = 60;
-    private final BoidsModel model;
+    private final static int TARGET_FPS = 20;
+    private BoidsModel model;
     private Optional<BoidsView> view;
     
     private int framerate;
@@ -21,34 +19,61 @@ public class BoidsSimulator {
     	this.view = Optional.of(view);
     }
       
+//    public void runSimulation() {
+////        int nBoids = model.getThreads().stream().mapToInt(t -> t.getBoids().size()).sum();
+////        System.out.println("Number of boids: " + nBoids);
+////        model.getThreads().forEach(Thread::start);
+//
+//        long timer = System.currentTimeMillis();
+//        int frames = 0;
+//
+//        while (true) {
+//            if (this.model.getBarrier() != null) {
+//                try {
+//                    this.model.getBarrier().await();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//
+//                frames++;
+//
+//                if (System.currentTimeMillis() - timer > 1000) {
+//                    framerate = frames;
+//                    frames = 0;
+//                    timer = System.currentTimeMillis();
+//                }
+//
+//                view.ifPresent(boidsView -> boidsView.update(framerate));
+//            }
+//        }
+//    }
+
     public void runSimulation() {
+        long lastSecond = System.currentTimeMillis();
+        int frames = 0;
+
         while (true) {
+            long currentTime = System.currentTimeMillis();
 
-            var t0 = System.currentTimeMillis();
+            // Simula il comportamento dei boids qui
+            // model.updateBoids();
 
-            model.getFrameMonitor().waitWorkDone();
-
-            if (view.isPresent()) {
-                view.get().update(framerate);
-                var t1 = System.currentTimeMillis();
-                var dtElapsed = t1 - t0;
-                var framratePeriod = 1000/FRAMERATE;
-
-                if (dtElapsed < framratePeriod) {
-                    try {
-                        Thread.sleep(framratePeriod - dtElapsed);
-                    } catch (Exception ex) {}
-                    framerate = FRAMERATE;
-                } else {
-                    framerate = (int) (1000/dtElapsed);
-                }
+            if(currentTime - lastSecond >= 1000) {
+                framerate = frames;
+                frames = 0;
+                lastSecond = currentTime;
             }
-            if(model.getSimulationMonitor().isEndSimulation()){
-                model.getThreads().forEach(MultiWorker::interrupt);
-            }
-            model.getFrameMonitor().resetAndRestart();
 
+            view.ifPresent(boidsView -> boidsView.update(framerate));
+
+            int completed = model.getAndResetFrameCompleted();
+            frames += completed;
+
+            try {
+                Thread.sleep(1000 / TARGET_FPS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
-
 }

@@ -32,17 +32,17 @@ public class JpfMain {
                 simMonitor);
 
         model.setupThreads(2);
-        model.getSimulationMonitor().startSimulation();
-        model.getThreads().forEach(Thread::start);
-
-        model.getSimulationMonitor().stopSimulation();
-
+        model.getThreads().forEach(MultiWorker::start);
         model.getSimulationMonitor().startSimulation();
 
 
+        //model.getSimulationMonitor().stopSimulation();
 
-        model.getSimulationMonitor().endSimulation();
-        model.getThreads().forEach(MultiWorker::interrupt);
+        //model.getSimulationMonitor().startSimulation();
+
+
+        model.stopWorkers();
+
 
     }
 }

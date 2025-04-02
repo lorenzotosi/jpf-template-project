@@ -1,6 +1,5 @@
 package pcd.ass01;
 
-import pcd.ass01.monitor.FPSMonitor;
 import pcd.ass01.monitor.SimulationMonitor;
 
 public class BoidsSimulation {
@@ -18,14 +17,11 @@ public class BoidsSimulation {
     static final double AVOID_RADIUS = 20.0;
 
 	final static int SCREEN_WIDTH = 800; 
-	final static int SCREEN_HEIGHT = 800;
-
-	final static int N_THREADS = Runtime.getRuntime().availableProcessors() + 1;
+	final static int SCREEN_HEIGHT = 800; 
 	
 
     public static void main(String[] args) {
 		var simMonitor = new SimulationMonitor();
-
     	var model = new BoidsModel(
     					N_BOIDS, 
     					SEPARATION_WEIGHT, ALIGNMENT_WEIGHT, COHESION_WEIGHT, 
