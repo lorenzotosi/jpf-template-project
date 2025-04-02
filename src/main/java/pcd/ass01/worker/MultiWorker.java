@@ -3,58 +3,53 @@ package pcd.ass01.worker;
 import pcd.ass01.Boid;
 import pcd.ass01.BoidsModel;
 import pcd.ass01.concurrency.MyBarrier;
-import pcd.ass01.monitor.FPSMonitor;
 import pcd.ass01.monitor.SimulationMonitor;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 public class MultiWorker extends Thread {
 
     private final List<Boid> boids;
     private final BoidsModel boidsModel;
-    private final MyBarrier myBarrier;
+    private final MyBarrier phase1Barrier;
+    private final CyclicBarrier phase2Barrier;
     private final SimulationMonitor simulationMonitor;
-    private final FPSMonitor fpsMonitor;
-    private AtomicBoolean isRunning = new AtomicBoolean(true);
+    //private boolean isRunning = true;
 
-    public MultiWorker(List<Boid> boids, BoidsModel boidsModel,
-                       MyBarrier myBarrier, SimulationMonitor simulationMonitor,
-                       FPSMonitor fpsMonitor) {
+    public MultiWorker(List<Boid> boids, BoidsModel boidsModel, MyBarrier phase1Barrier,
+                       CyclicBarrier phase2Barrier, SimulationMonitor simulationMonitor) {
         this.boids = boids;
         this.boidsModel = boidsModel;
-        this.myBarrier = myBarrier;
+        this.phase1Barrier = phase1Barrier;
+        this.phase2Barrier = phase2Barrier;
         this.simulationMonitor = simulationMonitor;
-        this.fpsMonitor = fpsMonitor;
     }
 
     public void run() {
-        while (isRunning.get()) {
+        while (true) {
             simulationMonitor.waitIfSimulationIsStopped();
             try {
                 boids.forEach(boid -> boid.calculateVelocity(boidsModel));
-                myBarrier.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // Ripristina lo stato di interrupt
-                break;
-            }
-            try {
+                phase1Barrier.await();
                 boids.forEach(boid -> boid.updateVelocity(boidsModel));
                 boids.forEach(boid -> boid.updatePos(boidsModel));
-                myBarrier.await();
+                phase2Barrier.await();
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // Ripristina lo stato di interrupt
+                Thread.currentThread().interrupt();
+                break;
+            } catch (BrokenBarrierException e) {
+                //throw new RuntimeException(e);
                 break;
             }
-            fpsMonitor.workerFinishWork();
         }
 
     }
 
     @Override
     public void interrupt() {
-        this.isRunning.compareAndSet(true, false);
-        myBarrier.breakBarrier();
+        //this.stopperMonitor.notifyWorkerStop();
         super.interrupt();
     }
 
