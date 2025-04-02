@@ -30,10 +30,12 @@ public class JpfMain {
                 PERCEPTION_RADIUS,
                 AVOID_RADIUS,
                 simMonitor);
-        model.getSimulationMonitor().startSimulation();
-        model.setupThreads(2);
-        model.getThreads().forEach(MultiWorker::start);
-        //Thread.sleep(1000);
-        model.stopWorkers();
+        for (int i = 0; i < 2; i++) {
+            model.getSimulationMonitor().startSimulation();
+            model.setupThreads(2);
+            model.getThreads().forEach(MultiWorker::start);
+            Thread.sleep(500);
+            model.stopWorkers();
+        }
     }
 }
