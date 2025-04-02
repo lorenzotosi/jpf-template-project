@@ -1,9 +1,17 @@
 target = pcd.ass01.JpfMain
 
-classpath=build/classes/java/main
+classpath = build/classes/java/main
+sourcepath = src/main/java
 
-sourcepath=src/main/java
+# Strategia di ricerca e limiti per contenere lo stato
+cg.max_transitions = 50000
+search.class = gov.nasa.jpf.search.DFSearch
 
-listener=gov.nasa.jpf.listener.PreciseRaceDetector
 
-report.console.property_violation=error,trace
+# Rilevamento deadlock e data race
+listener += gov.nasa.jpf.listener.DeadlockAnalyzer
+listener = gov.nasa.jpf.listener.PreciseRaceDetector
+
+# Logging e reporting
+report.console.property_violation = error,trace
+verbose = 4

@@ -4,7 +4,7 @@ import pcd.ass01.monitor.SimulationMonitor;
 import pcd.ass01.worker.MultiWorker;
 
 public class JpfMain {
-    final static int N_BOIDS = 1500;
+    final static int N_BOIDS = 2;
 
     final static double SEPARATION_WEIGHT = 1.0;
     final static double ALIGNMENT_WEIGHT = 1.0;
@@ -30,23 +30,10 @@ public class JpfMain {
                 PERCEPTION_RADIUS,
                 AVOID_RADIUS,
                 simMonitor);
-
-        model.setupThreads(10);
-        model.getThreads().forEach(MultiWorker::start);
         model.getSimulationMonitor().startSimulation();
-
-
-        model.getSimulationMonitor().stopSimulation();
-
-        //model.getSimulationMonitor().startSimulation();
-
-
-        if (!model.getSimulationMonitor().isSimulationRunning()){
-            model.getSimulationMonitor().startSimulation();
-        }
+        model.setupThreads(2);
+        model.getThreads().forEach(MultiWorker::start);
+        //Thread.sleep(1000);
         model.stopWorkers();
-        model.getSimulationMonitor().stopSimulation();
-
-
     }
 }
