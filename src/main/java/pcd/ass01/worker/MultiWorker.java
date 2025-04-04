@@ -16,7 +16,6 @@ public class MultiWorker extends Thread {
     private final MyBarrier phase1Barrier;
     private final CyclicBarrier phase2Barrier;
     private final SimulationMonitor simulationMonitor;
-    //private boolean isRunning = true;
 
     public MultiWorker(List<Boid> boids, BoidsModel boidsModel, MyBarrier phase1Barrier,
                        CyclicBarrier phase2Barrier, SimulationMonitor simulationMonitor) {
@@ -28,12 +27,14 @@ public class MultiWorker extends Thread {
     }
 
     public void run() {
-        //while (true) {
+        int i = 0;
+        while (i < 3) {
             simulationMonitor.waitIfSimulationIsStopped();
             try {
                 boids.forEach(boid -> boid.calculateVelocity(boidsModel));
-                phase1Barrier.await();
+                phase2Barrier.await();
                 boids.forEach(boid -> boid.updateVelocity(boidsModel));
+                phase2Barrier.await();
                 boids.forEach(boid -> boid.updatePos(boidsModel));
                 phase2Barrier.await();
             } catch (InterruptedException e) {
@@ -43,14 +44,11 @@ public class MultiWorker extends Thread {
                 //throw new RuntimeException(e);
                 //break;
             }
-        //}
+            i++;
+            System.out.println(i);
+        }
 
-    }
 
-    @Override
-    public void interrupt() {
-        //this.stopperMonitor.notifyWorkerStop();
-        super.interrupt();
     }
 
 }

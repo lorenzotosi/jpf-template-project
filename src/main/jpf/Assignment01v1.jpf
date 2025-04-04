@@ -14,4 +14,3 @@ listener = gov.nasa.jpf.listener.PreciseRaceDetector
 
 # Logging e reporting
 report.console.property_violation = error,trace
-verbose = 4
