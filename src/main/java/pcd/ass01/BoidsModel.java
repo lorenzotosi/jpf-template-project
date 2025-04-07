@@ -25,6 +25,7 @@ public class BoidsModel {
     private volatile int frameCompleted = 0;
     private SimulationMonitor simulationMonitor;
     private boolean firstStart = true;
+    private final SpatialHashGrid grid;
 
     public BoidsModel(int nboids,
                       double initialSeparationWeight,
@@ -45,16 +46,21 @@ public class BoidsModel {
         this.perceptionRadius = perceptionRadius;
         this.avoidRadius = avoidRadius;
         this.simulationMonitor = simulationMonitor;
+        this.grid = new SpatialHashGrid(perceptionRadius);
         
     	boids = new CopyOnWriteArrayList<>();
         threads = new ArrayList<>();
+    }
+
+    public SpatialHashGrid getGrid() {
+        return grid;
     }
 
     public void setupThreads(final int nboids) {
         boids.clear();
         if (nboids > 0) {
             firstStart = false;
-            int nThreads = 2;
+            int nThreads = Runtime.getRuntime().availableProcessors() + 1;
             int nBoidsPerThread = nboids / nThreads;
             int poorBoids = nboids % nThreads;
 
@@ -62,6 +68,11 @@ public class BoidsModel {
             phase2Barrier = new CyclicBarrier(nThreads, () -> {
                 synchronized (this) {
                     frameCompleted++;
+                }
+                SpatialHashGrid grid = getGrid();
+                grid.clear();
+                for (Boid boid : getBoids()) {
+                    grid.insert(boid);
                 }
             });
 
@@ -112,8 +123,8 @@ public class BoidsModel {
         return current;
     }
 
-    public synchronized List<Boid> getBoids(){
-    	return List.copyOf(boids);
+    public List<Boid> getBoids(){
+    	return boids;
     }
 
     public SimulationMonitor getSimulationMonitor() {

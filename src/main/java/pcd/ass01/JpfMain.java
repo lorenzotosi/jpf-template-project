@@ -35,31 +35,35 @@ public class JpfMain {
                 simMonitor);
 
         model.getSimulationMonitor().startSimulation();
-//        model.setupThreads(2);
-//        model.getThreads().forEach(MultiWorker::start);
+        model.setupThreads(2);
+        model.getThreads().forEach(Thread::start);
+        model.stopWorkers();
+        
+//        var width = SCREEN_WIDTH;
+//        var height = SCREEN_HEIGHT;
+//        var maxSpeed = MAX_SPEED;
 //
-//        model.stopWorkers();
-
-
-            var width = SCREEN_WIDTH;
-            var height = SCREEN_HEIGHT;
-            var maxSpeed = MAX_SPEED;
-
-            P2d pos = new P2d(-width / 2 + 1 * width, -height / 2 + 1 * height);
-            V2d vel = new V2d(1 * maxSpeed / 2 - maxSpeed / 4, 1 * maxSpeed / 2 - maxSpeed / 4);
-
-            var barrier = new CyclicBarrier(2);
-            var x1 = new MultiWorker(List.of(new Boid(pos, vel)), model, null, barrier, simMonitor);
-            var x2 = new MultiWorker(List.of(new Boid(pos, vel)), model, null, barrier, simMonitor);
-
-            x1.start();
-            x2.start();
-
-
-            x1.interrupt();
-            x2.interrupt();
-            x1.join();
-            x2.join();
+//        P2d pos = new P2d(-width / 2 + 1 * width, -height / 2 + 1 * height);
+//        V2d vel = new V2d(1 * maxSpeed / 2 - maxSpeed / 4, 1 * maxSpeed / 2 - maxSpeed / 4);
+//
+//        var barrier = new CyclicBarrier(2, () -> {
+//            SpatialHashGrid grid = model.getGrid();
+//            grid.clear();
+//            for (Boid boid : model.getBoids()) {
+//                grid.insert(boid);
+//            }
+//        });
+//        var x1 = new MultiWorker(List.of(new Boid(pos, vel)), model, null, barrier, simMonitor);
+//        var x2 = new MultiWorker(List.of(new Boid(pos, vel)), model, null, barrier, simMonitor);
+//
+//        x1.start();
+//        x2.start();
+//
+//
+//        x1.interrupt();
+//        x2.interrupt();
+//        x1.join();
+//        x2.join();
 
     }
 }

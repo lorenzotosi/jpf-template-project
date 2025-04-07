@@ -36,23 +36,29 @@ public class JpfMain2 {
 
         ExecutorService e = Executors.newFixedThreadPool(2);
         model.setupThreads(2);
+        for (int i = 0; i < 5; i++) {
+            SpatialHashGrid grid = model.getGrid();
+            grid.clear();
+            for (Boid boid : model.getBoids()) {
+                grid.insert(boid);
+            }
 
-        model.getSimulationMonitor().startSimulation();
-        CountDownLatch countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
-        try {
-            model.executeCalculateTask(countDownLatch, e);
-            countDownLatch.await();
-        } catch (Exception ex) {
-            System.out.println("Boids simulation interrupted, " + ex.getMessage());
-        }
-        finally {
-            countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
-        }
-        try {
-            model.executeUpdateTask(countDownLatch, e);
-            countDownLatch.await();
-        } catch (InterruptedException ex) {
-            System.out.println("Boids simulation interrupted, " + ex.getMessage());
+            model.getSimulationMonitor().startSimulation();
+            CountDownLatch countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
+            try {
+                model.executeCalculateTask(countDownLatch, e);
+                countDownLatch.await();
+            } catch (Exception ex) {
+                System.out.println("Boids simulation interrupted, " + ex.getMessage());
+            } finally {
+                countDownLatch = new CountDownLatch(BoidsModel.N_THREADS);
+            }
+            try {
+                model.executeUpdateTask(countDownLatch, e);
+                countDownLatch.await();
+            } catch (InterruptedException ex) {
+                System.out.println("Boids simulation interrupted, " + ex.getMessage());
+            }
         }
         e.shutdown();
         model.getSimulationMonitor().stopSimulation();
